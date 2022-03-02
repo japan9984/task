@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>indexOK</title>
+  <style>
+    .noclick{
+      pointer-events:none;
+      user-select: none;
+    }
+    .doneTask{
+      text-decoration: line-through;
+      opacity: 0.5;
+    }
+    .limit{
+      margin-left: 10px;
+    }
+    .title-width{
+      display: inline-block;
+      width:calc((100%-50px)*0.5);
+    }
+    .checkbox-width{
+      display: inline-block;
+      width: 50px;
+    }
+    .list-width{
+      display: inline-block;
+      width:calc((100%-50px)*0.5);
+    }
+    .break-word{
+      overflow-wrap: break-word;
+    }
+    .list{
+      list-style: none;
+    }
+    #app ul{
+      padding-left: 0;
+    }
+    .bold{
+      font-weight: bold;
+    }
+    .blue{
+      color: blue;
+    }
+    .top{
+      vertical-align: top;
+    }
+    .width100{
+      width: 100px;
+    }
+    .width120{
+      width: 120px;
+    }
+    .p-bold{
+      font-weight: bold;
+      margin-bottom: 0;
+    }.p-nomal{
+      margin-top: 5px;
+    }
+    .red{
+      color:red;
+    }
+    /* .red{
+      color: red;
+    } */
+  </style>
+</head>
+<body>
+  <div id="app">
+    <p class="bold"><span class="checkbox-width">　完了
+    </span><span class="title-width">　タスク</span><span>　　期限</span></p>
+    <hr>
+    <ul>
+      <li v-for="todoList in todoLists" class="list">
+        <input type="checkbox" v-model="todoList.checkToggle" class="checkbox-width top">
+        <!-- <label :class={doneTask:todoList.checkToggle} class="list-width break-word" :class={red:limitRed}  @change="checkLimit()">{{todoList.title}}</label> -->
+        <label :class={doneTask:todoList.checkToggle} class="list-width break-word">{{todoList.title}}</label>
+        <label :class={doneTask:todoList.checkToggle} class="limit">{{todoList.limit}}</label>
+      
+      </li>
+      <p v-show="!todoLists.length" class="blue">下の入力欄から追加して下さい。</p>
+    </ul>
+    <hr>
+    <span>タスク</span>
+    <input class="width100" type="text" placeholder="NEW" v-model="newTitle" @change="checkEnteredValue()">
+    <span class="limit">期限</span>
+    <input class="width120" type="date" v-model="newLimit">
+    <button @click="addTodo()" :class={noclick:!newTitleToggle}>追加</button>
+    <br><br>
+    <button @click="deleteTodoList()">チェックリストを削除</button>
+    <p class="p-bold">このタスク管理帳の使い方</p>
+    <p class="p-nomal">※データは自動的に日付順に並びます<br>
+    ※データは、ユーザーのブラウザごとのローカルストレージに保存されます。</p>
+  </div>
+  
+  <script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
+  <script>
+    'use strict'
+    var app = new Vue({
+      el:"#app",
+      data:{
+        todoLists: [
+          // {title:"aaa",checkToggle: false},
+          // {title:"aaa",checkToggle: false},
+          // {title:"aaa",checkToggle: false},
+        ],
+        newTitleToggle: false,
+        newTitle: "",
+        newLimit:"",
+        limitRed: false
+      },
+      watch: {
+      todoLists:{
+        handler:function(){
+        localStorage.setItem('todos',JSON.stringify(this.todoLists));
+        // alert("data saved");
+        },
+        deep: true
+      }
+    },
+
+
+
+    mounted:function(){
+      this.todoLists = JSON.parse(localStorage.getItem('todos')) || [];
+    },
+      methods: {
+        checkEnteredValue(){
+          if(this.newTitle !==""){
+            this.newTitleToggle = true;
+          }else{
+            this.newTitleToggle = false;
+          }
+        },
+        addTodo(){
+          this.todoLists.push({
+            title:this.newTitle,
+            limit:this.newLimit,
+            checkToggle: false
+          });
+          this.newTitleToggle = false;
+          this.newLimit='';
+          this.newTitle='';
+          this.todoLists.sort(function(a, b){
+         	return (a.limit > b.limit ? 1 : -1);
+ 
+  
+
+         });
+ 
+        },
+        // checkLimit(){
+        //   let date = new Date();
+        //  let today = date.getDate();
+        // console.log(today);
+        //  if(today = 2){
+        //   this.limitRed = true;
+        //  }else{
+        //   this.limitRed = false;
+        //  }
+        // },
+        deleteTodoList(){{
+          this.todoLists = this.todoLists.filter(function(list){
+            return list.checkToggle === false;
+          })
+        }}
+      }
+    })
+
+  </script>
+</body>
+</html>
